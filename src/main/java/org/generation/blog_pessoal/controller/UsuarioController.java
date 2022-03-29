@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
-import org.apache.catalina.connector.Response;
+
 import org.generation.blog_pessoal.dtos.UsuarioLogin;
 import org.generation.blog_pessoal.model.Usuario;
 import org.generation.blog_pessoal.repository.UsuarioRepository;
@@ -21,12 +21,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/usuarios")
