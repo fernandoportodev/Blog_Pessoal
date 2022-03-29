@@ -1,15 +1,23 @@
 package org.generation.blog_pessoal.controller;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.generation.blog_pessoal.model.UserLogin;
+import javax.validation.Valid;
+
+import org.apache.catalina.connector.Response;
+import org.generation.blog_pessoal.dtos.UsuarioLogin;
 import org.generation.blog_pessoal.model.Usuario;
+import org.generation.blog_pessoal.repository.UsuarioRepository;
 import org.generation.blog_pessoal.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,45 +33,33 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioService usuarioService;
+    
+    private @Autowired UsuarioService service;
 
-    @Operation(summary = "Logar usuario")
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Usuario Logado",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserLogin.class))}
-        ),
+    private @Autowired UsuarioRepository repository;
 
-        @ApiResponse(
-            responseCode = "401",
-            description = "Usuario não autorizado",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserLogin.class))}
-        )
-    })
-    @PostMapping("/logar")
-    public ResponseEntity<UserLogin> Autentication (@RequestBody Optional<UserLogin> user){
-        return usuarioService.Logar(user).map(resp -> ResponseEntity.ok(resp)).orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    @GetMapping("/all")
+    public ResponseEntity <List<Usuario>> getAll(){
+        return ResponseEntity.ok(repository.findAll());
     }
 
-    @Operation(summary = "Cadastrar usuario")
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "201",
-            description = "Usuario Criado",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))}
-        ),
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> getById(@PathVariable long id){
+        return repository.findById(id).map(resp -> ResponseEntity.ok(resp)).orElse(ResponseEntity.notFound().build());
+    }
 
-        @ApiResponse(
-            responseCode = "422",
-            description = "Usuario já cadastrado",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))}
-        )
-    })
-    @PostMapping("/cadastrar")
-    public ResponseEntity<Usuario> Post (@RequestBody Usuario usuario){
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.CadastrarUsuario(usuario));
+    @PostMapping("/logar")
+    public ResponseEntity<UsuarioLogin> autenticationUsuario (@RequestBody Optional<UsuarioLogin> usuario){
+        return service.logarUsuario(usuario).map(resp -> ResponseEntity.ok(resp)).orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
     
+    @PostMapping("/cadastrar")
+    public ResponseEntity<Usuario> postUsuario (@Valid @RequestBody Usuario usuario){
+        return service.cadastrarUsuario(usuario).map(resp -> ResponseEntity.status(HttpStatus.CREATED).body(resp)).orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    }
+
+    @PutMapping("/atualizar")
+    public ResponseEntity<Usuario> putUsuario(@Valid @RequestBody Usuario usuario){
+        return service.atualizarUsuario(usuario).map(resp -> ResponseEntity.status(HttpStatus.OK).body(resp)).orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    }
 }
